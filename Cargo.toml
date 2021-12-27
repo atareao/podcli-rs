@@ -8,3 +8,7 @@ authors = ["Lorenzo Carbonell (a.k.a. atareao) <lorenzo.carbonell.cerezo@gmail.c
 
 [dependencies]
 clap = "2.34"
+
+[[bin]]
+name = "podcli"
+path = "src/main.rs"
