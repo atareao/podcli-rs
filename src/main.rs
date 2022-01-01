@@ -1,3 +1,5 @@
+use std::num;
+
 use clap::Parser;
 use roxmltree::{Document, Node};
 
@@ -44,8 +46,14 @@ fn get_rss(){
     println!("Channel: '{}'", channel.tag_name().name());
     for item in channel.children().filter(|i| i.has_tag_name("item")).into_iter(){
         let title = item.children().find(|p| p.has_tag_name("title")).unwrap().text().unwrap();
-        let numero = item.children().find(|p| p.has_tag_name("itunes:episode")).unwrap().text().unwrap();
-        println!("El título del episodio {} es: {}", numero, title);
+        let description = item.children().find(|p| p.has_tag_name("description")).unwrap().text().unwrap();
+        let mut en: &str;
+        if let Some(numero) = item.children().find(|p| p.has_tag_name("episode")){
+            en = numero.text().unwrap();
+        }else{
+            en = "Unknown";
+        }
+        println!("El título del episodio {} es: {}", en, title);
     }
     let temporal = "!";
     assert_eq!(temporal, "");
