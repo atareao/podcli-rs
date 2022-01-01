@@ -7,7 +7,7 @@ authors = ["Lorenzo Carbonell (a.k.a. atareao) <lorenzo.carbonell.cerezo@gmail.c
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = "3.0"
+clap = {version = "3.0.0", features = ["derive"]}
 
 [[bin]]
 name = "podcli"
