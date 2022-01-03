@@ -12,40 +12,54 @@ pub struct Podcast{
     url: String,
     title: String,
     description: String,
+    link: String,
     image: String,
     items: Vec<Item>,
 }
 
-impl Item{
-    pub fn new(title: &str, description: &str, enclosure: &str, link: &str,
-               image: &str)->Item{
-        Self{title: title.to_string(),
-             description: description.to_string(),
-             enclosure: enclosure.to_string(),
-             link: link.to_string(),
-             image: image.to_string()}
-    }
-
-    pub fn print(&self){
-        println!("Title: {}", self.title);
-        println!("Description: {}", self.description);
-        println!("Enclosure: {}", self.enclosure);
-        println!("Link: {}", self.link);
-        println!("Image: {}", self.image);
-    }
-}
-
 impl Podcast{
     pub fn new(url: &str)->Podcast{
-
+        let mut podcast = Podcast{
+            url: url.to_string(),
+            title: String::from(""),
+            description: String::from(""),
+            link: String::from(""),
+            image: String::from(""),
+            items: Vec::new(),
+        };
+        let _items = podcast.get_rss(url);
+        podcast
     }
 
-    fn get_rss(url: &str)->Vec<Item>{
+    fn get_rss(&mut self, url: &str)->Vec<Item>{
+        self.url = url.to_string();
         let mut items: Vec<Item> = Vec::new();
         let body = reqwest::blocking::get(url).unwrap().text().unwrap();
         let document = Document::parse(&body).unwrap();
         let rss = document.root().first_child().unwrap();
         let channel = rss.children().find(|i| i.has_tag_name("channel")).unwrap();
+        /*
+         * title
+         * description
+         * link
+         * image / url
+         */
+        if let Some(node) = channel.children().filter(|p| p.has_tag_name("description")).next(){
+            if let Some(text) = node.text(){ self.description = text.to_string(); }else{ self.description = "".to_string(); }
+        }else{
+            self.description = "".to_string();
+        }
+        if let Some(node) = channel.children().filter(|p| p.has_tag_name("title")).next(){
+            if let Some(text) = node.text(){ self.title = text.to_string(); }else{ self.title = "".to_string(); }
+        }else{
+            self.title = "".to_string();
+        }
+        if let Some(node) = channel.children().filter(|p| p.has_tag_name("link")).next(){
+            if let Some(text) = node.text(){ self.link = text.to_string(); }else{ self.link = "".to_string(); }
+        }else{
+            self.link = "".to_string();
+        }
+
         for item in channel.children().filter(|i| i.has_tag_name("item")).into_iter(){
             let title;
             let description;
@@ -92,3 +106,23 @@ impl Podcast{
         items
     }
 }
+
+impl Item{
+    pub fn new(title: &str, description: &str, enclosure: &str, link: &str,
+               image: &str)->Item{
+        Self{title: title.to_string(),
+             description: description.to_string(),
+             enclosure: enclosure.to_string(),
+             link: link.to_string(),
+             image: image.to_string()}
+    }
+
+    pub fn print(&self){
+        println!("Title: {}", self.title);
+        println!("Description: {}", self.description);
+        println!("Enclosure: {}", self.enclosure);
+        println!("Link: {}", self.link);
+        println!("Image: {}", self.image);
+    }
+}
+
