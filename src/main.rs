@@ -1,39 +1,17 @@
+mod podcast;
+
 use clap::Parser;
 use std::sync::mpsc::channel;
 use std::thread;
 use spinners::{Spinner, Spinners};
 use roxmltree::Document;
+use crate::podcast::Item;
 
 /*
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const NAME: &str = env!("CARGO_PKG_NAME");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 */
-
-struct Item{
-    title: String,
-    description: String,
-    enclosure: String,
-    link: String,
-    image: String,
-}
-
-impl Item{
-    fn new(title: &str, description: &str, enclosure: &str, link: &str, image: &str)->Item{
-        Self{title: title.to_string(),
-             description: description.to_string(),
-             enclosure: enclosure.to_string(),
-             link: link.to_string(),
-             image: image.to_string()}
-    }
-    fn print(&self){
-        println!("Title: {}", self.title);
-        println!("Description: {}", self.description);
-        println!("Enclosure: {}", self.enclosure);
-        println!("Link: {}", self.link);
-        println!("Image: {}", self.image);
-    }
-}
 
 #[derive(Parser, Debug)]
 #[clap(about, version, author)]
