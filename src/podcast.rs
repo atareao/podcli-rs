@@ -31,9 +31,21 @@ impl Podcast{
         podcast
     }
 
-    fn get_rss(&mut self, url: &str)->Vec<Item>{
+    pub fn get_episodes(&self)->&Vec<Item>{
+        &self.items
+    }
+
+    pub fn get_title(&self)->&str{
+        &self.title
+    }
+
+    pub fn get_description(&self)->&str{
+        &self.description
+    }
+
+    fn get_rss(&mut self, url: &str){
         self.url = url.to_string();
-        let mut items: Vec<Item> = Vec::new();
+        self.items = Vec::new();
         let body = reqwest::blocking::get(url).unwrap().text().unwrap();
         let document = Document::parse(&body).unwrap();
         let rss = document.root().first_child().unwrap();
@@ -44,22 +56,21 @@ impl Podcast{
          * link
          * image / url
          */
-        if let Some(node) = channel.children().filter(|p| p.has_tag_name("description")).next(){
+        if let Some(node) = channel.children().find(|p| p.has_tag_name("description")){
             if let Some(text) = node.text(){ self.description = text.to_string(); }else{ self.description = "".to_string(); }
         }else{
             self.description = "".to_string();
         }
-        if let Some(node) = channel.children().filter(|p| p.has_tag_name("title")).next(){
+        if let Some(node) = channel.children().find(|p| p.has_tag_name("title")){
             if let Some(text) = node.text(){ self.title = text.to_string(); }else{ self.title = "".to_string(); }
         }else{
             self.title = "".to_string();
         }
-        if let Some(node) = channel.children().filter(|p| p.has_tag_name("link")).next(){
+        if let Some(node) = channel.children().find(|p| p.has_tag_name("link")){
             if let Some(text) = node.text(){ self.link = text.to_string(); }else{ self.link = "".to_string(); }
         }else{
             self.link = "".to_string();
         }
-
         for item in channel.children().filter(|i| i.has_tag_name("item")).into_iter(){
             let title;
             let description;
@@ -100,10 +111,9 @@ impl Podcast{
                 image = "";
             }
             let item = Item::new(title, description, enclosure, link, image);
-            items.push(item);
+            self.items.push(item);
         }
-        items.reverse();
-        items
+        self.items.reverse();
     }
 }
 
@@ -115,6 +125,22 @@ impl Item{
              enclosure: enclosure.to_string(),
              link: link.to_string(),
              image: image.to_string()}
+    }
+
+    pub fn get_title(&self)->&str{
+        &self.title
+    }
+
+    pub fn get_descrption(&self)->&str{
+        &self.description
+    }
+
+    pub fn get_enclosure(&self)->&str{
+        &self.enclosure
+    }
+
+    pub fn get_link(&self)->&str{
+        &self.link
     }
 
     pub fn print(&self){

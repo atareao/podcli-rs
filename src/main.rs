@@ -4,8 +4,9 @@ use clap::Parser;
 use std::sync::mpsc::channel;
 use std::thread;
 use spinners::{Spinner, Spinners};
-use roxmltree::Document;
-use crate::podcast::Item;
+use crate::podcast::Podcast;
+use std::io;
+use std::fs::File;
 
 /*
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -67,13 +68,17 @@ fn main() {
     let spinner = Spinner::new(&Spinners::Dots9,
                                "Downloading feed".to_string());
     let thread_join_handle = thread::spawn(move || {
-        let items = get_rss(&url);
-        let _ = sender.send(items);
+        let podcast = Podcast::new(&url);
+        let _ = sender.send(podcast);
     });
     let _ = thread_join_handle.join();
     spinner.stop();
-    let feed = receiver.recv().unwrap();
-    let noi: i32 = feed.len().try_into().unwrap();
+    println!();
+    let podcast = receiver.recv().unwrap();
+    println!("Podcast title: {}", podcast.get_title());
+    println!("Podcast description: {}", podcast.get_description());
+    let items = podcast.get_episodes();
+    let noi: i32 = items.len().try_into().unwrap();
     if let Some(value) = args.first{
         if value <= 0 && value <= noi {
             first = (noi - value).try_into().unwrap();
@@ -99,9 +104,28 @@ fn main() {
     if last < first{
         last = first;
     }
-    for item in feed.iter().take(last + 1).skip(first){
+    /*
+    let mut handles = Vec::new();
+    let spinner = Spinner::new(&Spinners::Dots9,
+                               "Downloading feed".to_string());
+                               */
+    for item in items.iter().take(last + 1).skip(first){
         item.print();
+        /*
+        let thread_join_handle = thread::spawn(move || {
+            let mut resp = reqwest::blocking::get(item.get_enclosure()).expect("Failed download");
+            let mut out = File::create("archivo.mp3").expect("Failed file");
+            io::copy(&mut resp, &mut out).expect("Failed copy");
+        });
+        handles.push(thread_join_handle);
+        */
     }
+    /*
+    for thread in handles{
+        let _ = thread.join();
+    }
+    spinner.stop();
+    */
 }
 
 
@@ -109,55 +133,4 @@ fn main() {
 fn test_get_rss(){
     let temporal = "!";
     assert_eq!(temporal, "");
-}
-fn get_rss(url: &str)->Vec<Item>{
-    let mut items: Vec<Item> = Vec::new();
-    let body = reqwest::blocking::get(url).unwrap().text().unwrap();
-    let document = Document::parse(&body).unwrap();
-    let rss = document.root().first_child().unwrap();
-    let channel = rss.children().find(|i| i.has_tag_name("channel")).unwrap();
-    for item in channel.children().filter(|i| i.has_tag_name("item")).into_iter(){
-        let title;
-        let description;
-        let enclosure;
-        let link;
-        let image;
-        if let Some(value) = item.children().find(|p| p.has_tag_name("title")){
-            if let Some(text) = value.text(){ title = text; }else{ title = ""; }
-        }else{
-            title = "";
-        }
-        if let Some(value) = item.children().find(|p| p.has_tag_name("description")){
-            if let Some(text) = value.text(){ description = text; }else{ description = ""; }
-        }else{
-            description = "";
-        }
-        if let Some(value) = item.children().find(|p| p.has_tag_name("enclosure")){
-            if let Some(attribute) = value.attributes().iter().find(|a| a.name() == "url"){
-                enclosure = attribute.value();
-            }else{
-                enclosure = "";
-            }
-        }else{
-            enclosure = "";
-        }
-        if let Some(value) = item.children().find(|p| p.has_tag_name("link")){
-            if let Some(text) = value.text(){ link = text; }else{ link = ""; }
-        }else{
-            link = "";
-        }
-        if let Some(value) = item.children().find(|p| p.has_tag_name("image")){
-            if let Some(attribute) = value.attributes().iter().find(|a| a.name() == "href"){
-                image = attribute.value();
-            }else{
-                image = "";
-            }
-        }else{
-            image = "";
-        }
-        let item = Item::new(title, description, enclosure, link, image);
-        items.push(item);
-    }
-    items.reverse();
-    items
 }
