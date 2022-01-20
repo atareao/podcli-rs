@@ -1,69 +1,52 @@
 mod podcast;
 
-use clap::Parser;
+use clap::{App, Arg, AppSettings};
 use std::sync::mpsc::channel;
 use std::thread;
 use spinners::{Spinner, Spinners};
 use crate::podcast::Podcast;
-use std::io;
-use std::fs::File;
 
-/*
+const NAME: &str =env!("CARGO_PKG_NAME");
+const DESCRIPTION: &str =env!("CARGO_PKG_DESCRIPTION");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
-const NAME: &str = env!("CARGO_PKG_NAME");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
-*/
-
-#[derive(Parser, Debug)]
-#[clap(about, version, author)]
-struct Args {
-    /// Debug mode
-    #[clap(short='D', long)]
-    debug: bool,
-
-    /// Show the title of the episode(s)
-    #[clap(short, long)]
-    title: bool,
-
-    /// Show the description of the episode(s)
-    #[clap(short, long)]
-    description: bool,
-
-    /// The url of the feed of the podcast. Required.
-    #[clap(short, long)]
-    url: String,
-
-    /// The first episode to adquire. If none, default is the first.
-    #[clap(short='F', long)]
-    first: Option<i32>,
-
-    /// The last episode to adquire. If none, default is the last.
-    #[clap(short='L', long)]
-    last: Option<i32>,
-
-    /// Download the picture of the episode(s)
-    #[clap(short, long)]
-    image: bool,
-
-    /// Download the audio of the episode(s)
-    #[clap(short, long)]
-    audio: bool,
-
-    /// Download the feed
-    #[clap(short, long)]
-    feed: bool,
-
-    /// Play the audio of the episode(s)
-    #[clap(short, long)]
-    play: bool,
-
-}
 
 fn main() {
-    let args = Args::parse();
-    let url = args.url;
-    let first: usize;
-    let mut last: usize;
+    let matches = App::new(NAME)
+        .version(VERSION)
+        .author(AUTHORS)
+        .about(DESCRIPTION)
+        .setting(AppSettings::ArgRequiredElseHelp)
+        .arg(Arg::new("debug")
+             .short('d')
+             .long("debug")
+             .takes_value(false))
+        .arg(Arg::new("json")
+             .short('j')
+             .long("json")
+             .takes_value(false))
+        .arg(Arg::new("url")
+             .short('u')
+             .long("url")
+             .takes_value(true))
+        .arg(Arg::new("first")
+             .short('f')
+             .long("first")
+             .required(false)
+             .takes_value(true))
+        .arg(Arg::new("last")
+             .short('l')
+             .long("first")
+             .required(false)
+             .takes_value(true))
+        .subcommand(App::new("list")
+                    .about("List")
+                    )
+        .get_matches();
+    let url = matches.value_of("url").unwrap();
+
+    let first: i32;
+    let mut last: i32;
     let (sender, receiver) = channel();
     let spinner = Spinner::new(&Spinners::Dots9,
                                "Downloading feed".to_string());
@@ -79,24 +62,34 @@ fn main() {
     println!("Podcast description: {}", podcast.get_description());
     let items = podcast.get_episodes();
     let noi: i32 = items.len().try_into().unwrap();
-    if let Some(value) = args.first{
-        if value <= 0 && value <= noi {
-            first = (noi - value).try_into().unwrap();
-        }else if value < 0 && value > noi {
-            first = 0;
-        } else {
-            first = (value - 1).try_into().unwrap();
+    if let Some(value) = matches.value_of("first"){
+        match value.parse::<i32>(){
+            Ok(fvalue) => {
+                if fvalue <= 0 && fvalue <= noi {
+                    first = noi - fvalue;
+                }else if fvalue < 0 && fvalue > noi {
+                    first = 0;
+                } else {
+                    first = fvalue - 1;
+                }
+            },
+            _ => first = 0,
         }
     }else{
         first = 0;
     }
-    if let Some(value) = args.last{
-        if value <= 0 && value < noi {
-            last = (noi - value).try_into().unwrap();
-        }else if value <= 0 && value > noi {
-            last = (noi - 1).try_into().unwrap();
-        } else {
-            last = (value - 1).try_into().unwrap();
+    if let Some(value) = matches.value_of("last"){
+        match value.parse::<i32>(){
+            Ok(fvalue) => {
+                if fvalue <= 0 && fvalue < noi {
+                    last = noi - fvalue;
+                }else if fvalue <= 0 && fvalue > noi {
+                    last = noi - 1;
+                } else {
+                    last = fvalue - 1;
+                }
+            },
+            _ => last = (noi - 1).try_into().unwrap(),
         }
     }else{
         last = (noi - 1).try_into().unwrap();
@@ -104,28 +97,11 @@ fn main() {
     if last < first{
         last = first;
     }
-    /*
-    let mut handles = Vec::new();
-    let spinner = Spinner::new(&Spinners::Dots9,
-                               "Downloading feed".to_string());
-                               */
-    for item in items.iter().take(last + 1).skip(first){
-        item.print();
-        /*
-        let thread_join_handle = thread::spawn(move || {
-            let mut resp = reqwest::blocking::get(item.get_enclosure()).expect("Failed download");
-            let mut out = File::create("archivo.mp3").expect("Failed file");
-            io::copy(&mut resp, &mut out).expect("Failed copy");
-        });
-        handles.push(thread_join_handle);
-        */
+    if let Some(_sub) = matches.subcommand_matches("list"){
+        for item in items.iter().take((last + 1).try_into().unwrap()).skip(first.try_into().unwrap()){
+            item.print();
+        }
     }
-    /*
-    for thread in handles{
-        let _ = thread.join();
-    }
-    spinner.stop();
-    */
 }
 
 
