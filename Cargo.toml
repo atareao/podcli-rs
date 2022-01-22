@@ -13,6 +13,9 @@ roxmltree = "0.14"
 spinners = "2.0"
 # the player
 gstreamer = "0.17.4"
+# Added due to reqwest dependency problems with cross-compiling
+openssl = { version = "0.10", features = ["vendored"]}
+glib-sys = "0.15"
 
 [[bin]]
 name = "podcli"

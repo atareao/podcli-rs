@@ -1,21 +1,35 @@
-####################################################################################################
+###############################################################################
 ## Builder
-####################################################################################################
+###############################################################################
 FROM rust:latest AS builder
 
-RUN apt-get update && apt-get install -y libasound2-dev tini
+RUN rustup target add x86_64-unknown-linux-musl && \
+    apt-get update && \
+    apt-get install -y \
+        musl-tools \
+        build-essential \
+        cmake \
+        musl-dev \
+        libssl-dev \
+        libasound2-dev \
+        && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
+ARG TARGET=x86_64-unknown-linux-musl
+ENV RUST_MUSL_CROSS_TARGET=$TARGET
 
 WORKDIR /app
 
 COPY ./ .
 
-RUN cargo build  --release
+RUN cargo build  --target x86_64-unknown-linux-musl --release
 
-####################################################################################################
+###############################################################################
 ## Final image
-####################################################################################################
-FROM scratch
+###############################################################################
+FROM alpine
+
+RUN apk add tini libressl-dev
 
 WORKDIR /app
 
