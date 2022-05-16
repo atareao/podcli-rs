@@ -5,6 +5,7 @@ use std::sync::mpsc::channel;
 use std::thread;
 use spinners::{Spinner, Spinners};
 use crate::podcast::Podcast;
+use colored::*;
 
 const NAME: &str =env!("CARGO_PKG_NAME");
 const DESCRIPTION: &str =env!("CARGO_PKG_DESCRIPTION");
@@ -60,7 +61,10 @@ fn main() {
         }
 
         for (index, item) in items.iter().take((last + 1).try_into().unwrap()).skip(first.try_into().unwrap()).enumerate(){
-            print!("{}. ", index);
+            println!("{} {} {}",
+                     "=====".cyan(),
+                     index.to_string().blue(),
+                     "=====".cyan());
             item.print();
         }
     }

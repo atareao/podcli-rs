@@ -1,4 +1,5 @@
 use roxmltree::Document;
+use colored::*;
 
 pub struct Item{
     title: String,
@@ -144,11 +145,11 @@ impl Item{
     }
 
     pub fn print(&self){
-        println!("Title: {}", self.title);
-        println!("Description: {}", self.description);
-        println!("Enclosure: {}", self.enclosure);
-        println!("Link: {}", self.link);
-        println!("Image: {}", self.image);
+        println!("{}: {}", "Title".red(), self.title.blue());
+        println!("{}: {}", "Description".red(), self.description);
+        println!("{}: {}", "Enclosure".red(), self.enclosure.magenta());
+        println!("{}: {}", "Link".red(), self.link);
+        println!("{}: {}", "Image".red(), self.image);
     }
 }
 

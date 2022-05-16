@@ -11,6 +11,7 @@ clap = {version = "3.0.0", features = ["derive"]}
 reqwest = { version = "0.11", features = ["blocking"]}
 roxmltree = "0.14"
 spinners = "2.0"
+colored = "2"
 # the player
 #gstreamer = "0.17.4"
 rodio = "0.14"
