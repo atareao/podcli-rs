@@ -1,10 +1,8 @@
 mod podcast;
 
-use clap::{App, Arg, AppSettings, ArgMatches};
-use std::sync::mpsc::channel;
-use std::thread;
+use clap::{App, Arg, AppSettings};
 use spinners::{Spinner, Spinners};
-use crate::podcast::Podcast;
+use crate::podcast::get_rss;
 use colored::*;
 
 const NAME: &str =env!("CARGO_PKG_NAME");
@@ -12,7 +10,9 @@ const DESCRIPTION: &str =env!("CARGO_PKG_DESCRIPTION");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
-fn main(){
+
+#[tokio::main]
+async fn main(){
     let matches = App::new(NAME)
         .version(VERSION)
         .author(AUTHORS)
@@ -50,8 +50,11 @@ fn main(){
         let first_string = sub.value_of("first");
         let last_string = sub.value_of("last");
 
-        let podcast = get_podcast(url.to_string());
+        let spinner = Spinner::new(&Spinners::Dots9,
+                                   "Downloading feed".to_string());
+        let podcast = get_rss(url).await.unwrap();
         let items = podcast.get_episodes();
+        spinner.stop();
         let total: i32 = items.len().try_into().unwrap();
         let first = calc_first(first_string, total);
         let mut last = calc_last(last_string, total);
@@ -68,20 +71,6 @@ fn main(){
             item.print();
         }
     }
-}
-
-async fn get_podcast(url: String) -> Podcast{
-    let (sender, receiver) = channel();
-    let spinner = Spinner::new(&Spinners::Dots9,
-                               "Downloading feed".to_string());
-    let thread_join_handle = thread::spawn(move || {
-        let podcast = Podcast::new(&url);
-        let _ = sender.send(podcast);
-    });
-    let _ = thread_join_handle.join();
-    spinner.stop();
-    println!();
-    receiver.recv().unwrap()
 }
 
 fn calc_first(first_value: Option<&str>, total: i32) -> i32{

@@ -21,7 +21,7 @@ pub struct Podcast{
 
 impl Podcast{
     pub async fn new(url: &str)->Result<Podcast, Error>{
-        get_rss(url).await
+        get_rss(&url).await
     }
 
     pub fn get_episodes(&self)->&Vec<Item>{
@@ -45,7 +45,7 @@ impl Podcast{
     }
 }
 
-async fn get_rss(url: &str)->Result<Podcast, Error>{
+pub async fn get_rss(url: &str)->Result<Podcast, Error>{
     let url = url.to_string();
     let mut description = "".to_string();
     let mut title = "".to_string();
