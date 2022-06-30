@@ -12,7 +12,7 @@ const DESCRIPTION: &str =env!("CARGO_PKG_DESCRIPTION");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
-fn main() {
+fn main(){
     let matches = App::new(NAME)
         .version(VERSION)
         .author(AUTHORS)
@@ -70,7 +70,7 @@ fn main() {
     }
 }
 
-fn get_podcast(url: String) -> Podcast{
+async fn get_podcast(url: String) -> Podcast{
     let (sender, receiver) = channel();
     let spinner = Spinner::new(&Spinners::Dots9,
                                "Downloading feed".to_string());
