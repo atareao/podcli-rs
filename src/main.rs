@@ -1,5 +1,7 @@
 mod podcast;
 
+use std::process;
+
 use clap::{App, Arg, AppSettings};
 use spinners::{Spinner, Spinners};
 use crate::podcast::get_rss;
@@ -22,6 +24,19 @@ async fn main(){
              .short('d')
              .long("debug")
              .takes_value(false))
+        .subcommand(App::new("play")
+                    .about("Play")
+                    )
+                    .arg(Arg::new("url")
+                         .short('u')
+                         .long("url")
+                         .required(true)
+                         .takes_value(true))
+                    .arg(Arg::new("episode")
+                         .short('e')
+                         .long("episode")
+                         .required(true)
+                         .takes_value(true))
         .subcommand(App::new("list")
                     .about("List")
                     .arg(Arg::new("url")
@@ -70,6 +85,7 @@ async fn main(){
                      "=====".cyan());
             item.print();
         }
+        process::exit(0);
     }
 }
 
