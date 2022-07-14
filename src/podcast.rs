@@ -1,13 +1,21 @@
 use roxmltree::Document;
 use colored::*;
 use reqwest::Error;
+use std::fmt;
 
-pub struct Item{
+pub struct Episode{
+    id: usize,
     title: String,
     description: String,
     enclosure: String,
     link: String,
     image: String,
+}
+
+impl fmt::Display for Episode{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result{
+        write!(f, "{}. {}", self.id, self.title)
+    }
 }
 
 pub struct Podcast{
@@ -16,7 +24,7 @@ pub struct Podcast{
     description: String,
     link: String,
     image: String,
-    items: Vec<Item>,
+    episodes: Vec<Episode>,
 }
 
 impl Podcast{
@@ -24,8 +32,8 @@ impl Podcast{
         get_rss(&url).await
     }
 
-    pub fn get_episodes(&self)->&Vec<Item>{
-        &self.items
+    pub fn get_episodes(&self)->&Vec<Episode>{
+        &self.episodes
     }
 
     pub fn get_title(&self)->&str{
@@ -43,6 +51,14 @@ impl Podcast{
             .text()
             .await
     }
+
+    pub fn get_titles(&self) -> Vec<String>{
+        let mut ans:Vec<String> = Vec::new();
+        for episode in &self.episodes {
+            ans.push(episode.to_string())
+        }
+        ans
+    }
 }
 
 pub async fn get_rss(url: &str)->Result<Podcast, Error>{
@@ -51,7 +67,7 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
     let mut title = "".to_string();
     let mut link = "".to_string();
     let mut image = "".to_string();
-    let mut items: Vec<Item> = Vec::new();
+    let mut episodes: Vec<Episode> = Vec::new();
     let body = reqwest::get(&url)
         .await
         .unwrap()
@@ -87,7 +103,10 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
             image = text.to_string();
         }
     }
-    for item in channel.children().filter(|i| i.has_tag_name("item")).into_iter(){
+    let chapters = channel.children().filter(|i| i.has_tag_name("item"));
+    let total = chapters.clone().count();
+    for (index, item) in chapters.enumerate(){
+        let id = total - index;
         let title;
         let description;
         let enclosure;
@@ -126,28 +145,33 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
         }else{
             image = "";
         }
-        let item = Item::new(title, description, enclosure, link, image);
-        items.push(item);
+        let episode = Episode::new(id, title, description, enclosure, link, image);
+        episodes.push(episode);
     }
-    items.reverse();
+    episodes.reverse();
     Ok(Podcast{
         url,
         title,
         description,
         link,
         image,
-        items,
+        episodes,
     })
 }
 
-impl Item{
-    pub fn new(title: &str, description: &str, enclosure: &str, link: &str,
-               image: &str)->Item{
-        Self{title: title.to_string(),
+impl Episode{
+    pub fn new(id: usize, title: &str, description: &str, enclosure: &str, link: &str,
+               image: &str)->Self{
+        Self{id,
+             title: title.to_string(),
              description: description.to_string(),
              enclosure: enclosure.to_string(),
              link: link.to_string(),
              image: image.to_string()}
+    }
+
+    pub fn get_id(&self)->&usize{
+        &self.id
     }
 
     pub fn get_title(&self)->&str{

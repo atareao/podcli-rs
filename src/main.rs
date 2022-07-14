@@ -5,6 +5,7 @@ use std::process;
 use clap::{App, Arg, AppSettings};
 use spinners::{Spinner, Spinners};
 use crate::podcast::get_rss;
+use inquire::{Text, Select};
 use colored::*;
 
 const NAME: &str =env!("CARGO_PKG_NAME");
@@ -17,33 +18,24 @@ const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 async fn main(){
     let matches = App::new(NAME)
         .version(VERSION)
-        .author(AUTHORS)
+       .author(AUTHORS)
         .about(DESCRIPTION)
         .setting(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::new("debug")
              .short('d')
              .long("debug")
              .takes_value(false))
-        .subcommand(App::new("play")
-                    .about("Play")
-                    )
-                    .arg(Arg::new("url")
-                         .short('u')
-                         .long("url")
-                         .required(true)
-                         .takes_value(true))
-                    .arg(Arg::new("episode")
-                         .short('e')
-                         .long("episode")
-                         .required(true)
-                         .takes_value(true))
+        .arg(Arg::new("interactive")
+             .short('i')
+             .long("interactive")
+             .takes_value(false))
+        .arg(Arg::new("url")
+             .short('u')
+             .long("url")
+             .required(true)
+             .takes_value(true))
         .subcommand(App::new("list")
                     .about("List")
-                    .arg(Arg::new("url")
-                         .short('u')
-                         .long("url")
-                         .required(true)
-                         .takes_value(true))
                     .arg(Arg::new("first")
                          .short('f')
                          .long("first")
@@ -60,7 +52,37 @@ async fn main(){
                          .takes_value(false))
                     )
         .get_matches();
-    if let Some(sub) = matches.subcommand_matches("list"){
+    let url = matches.value_of("url").unwrap();
+    println!("{:?}", url);
+    if matches.is_present("interactive"){
+    println!("{:?}", "aqui");
+        let spinner = Spinner::new(&Spinners::Dots9,
+                                   "Downloading feed".to_string());
+        let podcast = get_rss(url).await.unwrap();
+        spinner.stop();
+        let options = vec!["List episodes", "Get episode"];
+        let ans = Select::new("Select option:", options).prompt();
+        match ans {
+            Ok(choice) => {
+                println!("Selected {}", choice);
+                if choice.contains("List episodes"){
+                    for episode in podcast.get_episodes(){
+                        println!("{}", episode);
+                    }
+                }else if choice.contains("Get episode") {
+                    let ans = Select::new("Select option:", podcast.get_titles()).prompt();
+                    match ans{
+                        Ok(choice) => {
+                            println!("{}", choice);
+
+                        },
+                        Err(_) => println!("There was an error, please select again"),
+                    }
+                }
+            },
+            Err(_) => println!("There was an error, please select again"),
+        }
+    }else if let Some(sub) = matches.subcommand_matches("list"){
         let url = sub.value_of("url").unwrap();
         let first_string = sub.value_of("first");
         let last_string = sub.value_of("last");
