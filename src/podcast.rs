@@ -1,7 +1,7 @@
 use roxmltree::Document;
 use colored::*;
 use reqwest::Error;
-use std::fmt;
+use std::{fmt, io::Cursor};
 
 pub struct Episode{
     id: usize,
@@ -196,6 +196,14 @@ impl Episode{
         println!("{}: {}", "Enclosure".red(), self.enclosure.magenta());
         println!("{}: {}", "Link".red(), self.link);
         println!("{}: {}", "Image".red(), self.image);
+    }
+
+    async fn download(&self, filename: &str) -> Result<bool, Error>{
+        let response = reqwest::get(&self.enclosure).await?;
+        let mut file = std::fs::File::create(filename).unwrap();
+        let mut content = Cursor::new(response.bytes().await?);
+        std::io::copy(&mut content, &mut file).unwrap();
+        Ok(true)
     }
 }
 
