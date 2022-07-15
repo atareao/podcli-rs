@@ -9,6 +9,7 @@ authors = ["Lorenzo Carbonell (a.k.a. atareao) <lorenzo.carbonell.cerezo@gmail.c
 [dependencies]
 regex = "1.6"
 inquire = "0.2"
+tempfile = "3.3"
 clap = {version = "3.0.0", features = ["derive"]}
 tokio = { version = "1.19.2", features = ["full"]}
 reqwest = "0.11"

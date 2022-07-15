@@ -61,7 +61,7 @@ async fn main(){
                                    "Downloading feed".to_string());
         let podcast = get_rss(url).await.unwrap();
         spinner.stop();
-        let options = vec!["List episodes", "Get episode"];
+        let options = vec!["List episodes", "Get episode", "Play episode"];
         let ans = Select::new("Select option:", options).prompt();
         match ans {
             Ok(choice) => {
@@ -80,6 +80,24 @@ async fn main(){
                             let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
                             let episode = podcast.get_episodes().get(id - 1).unwrap();
                             episode.print();
+                        },
+                        Err(_) => println!("There was an error, please select again"),
+                    }
+                }else if choice.contains("Play episode") {
+                    let ans = Select::new("Select option:", podcast.get_titles()).prompt();
+                    match ans{
+                        Ok(choice) => {
+                            println!("{}", &choice);
+                            let re = Regex::new(r"(\d*)\.").unwrap();
+                            let capture = re.captures(&choice).unwrap();
+                            let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
+                            let episode = podcast.get_episodes().get(id - 1).unwrap();
+                            let spinner = Spinner::new(&Spinners::Dots9,
+                                                       "Downloading episode".to_string());
+                            let filename = format!("/tmp/{}.mp3", id);
+                            println!("{:?}", &filename);
+                            episode.download(&filename).await;
+                            spinner.stop();
                         },
                         Err(_) => println!("There was an error, please select again"),
                     }
