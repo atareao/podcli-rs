@@ -8,6 +8,9 @@ use crate::podcast::get_rss;
 use inquire::{Text, Select};
 use colored::*;
 use regex::Regex;
+use std::fs::File;
+use std::io::BufReader;
+use rodio::{Decoder, OutputStream, source::Source, Sink};
 
 const NAME: &str =env!("CARGO_PKG_NAME");
 const DESCRIPTION: &str =env!("CARGO_PKG_DESCRIPTION");
@@ -92,11 +95,14 @@ async fn main(){
                             let capture = re.captures(&choice).unwrap();
                             let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
                             let episode = podcast.get_episodes().get(id - 1).unwrap();
+                            episode.print();
                             let spinner = Spinner::new(&Spinners::Dots9,
                                                        "Downloading episode".to_string());
                             let filename = format!("/tmp/{}.mp3", id);
                             println!("{:?}", &filename);
                             episode.download(&filename).await;
+                            spinner.message("Playing...".to_string());
+                            play(&filename);
                             spinner.stop();
                         },
                         Err(_) => println!("There was an error, please select again"),
@@ -168,6 +174,15 @@ fn calc_last(last_value: Option<&str>, total: i32) -> i32{
         }
     }
     total - 1
+}
+
+fn play(filename: &str){
+    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    let file = BufReader::new(File::open(filename).unwrap());
+    let source = Decoder::new(file).unwrap();
+    let sink = Sink::try_new(&stream_handle).unwrap();
+    sink.append(source);
+    sink.sleep_until_end();
 }
 
 

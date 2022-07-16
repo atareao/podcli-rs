@@ -1,7 +1,6 @@
 use roxmltree::Document;
 use colored::*;
 use reqwest::Error;
-use tempfile::NamedTempFile;
 use std::{fmt, io::Cursor, fs::File};
 
 pub struct Episode{
@@ -30,7 +29,7 @@ pub struct Podcast{
 
 impl Podcast{
     pub async fn new(url: &str)->Result<Podcast, Error>{
-        get_rss(&url).await
+        get_rss(url).await
     }
 
     pub fn get_episodes(&self)->&Vec<Episode>{
@@ -149,7 +148,6 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
         let episode = Episode::new(id, title, description, enclosure, link, image);
         episodes.push(episode);
     }
-    episodes.reverse();
     Ok(Podcast{
         url,
         title,
