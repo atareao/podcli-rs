@@ -1,7 +1,8 @@
 use roxmltree::Document;
 use colored::*;
 use reqwest::Error;
-use std::{fmt, io::Cursor, fs::File};
+use std::{fmt, io::Cursor, fs::File, collections::HashMap};
+use itertools::Itertools;
 
 pub struct Episode{
     id: usize,
@@ -24,7 +25,7 @@ pub struct Podcast{
     description: String,
     link: String,
     image: String,
-    episodes: Vec<Episode>,
+    episodes: HashMap<usize, Episode>,
 }
 
 impl Podcast{
@@ -32,7 +33,7 @@ impl Podcast{
         get_rss(url).await
     }
 
-    pub fn get_episodes(&self)->&Vec<Episode>{
+    pub fn get_episodes(&self)->&HashMap<usize, Episode>{
         &self.episodes
     }
 
@@ -54,7 +55,8 @@ impl Podcast{
 
     pub fn get_titles(&self) -> Vec<String>{
         let mut ans:Vec<String> = Vec::new();
-        for episode in &self.episodes {
+        for id in self.episodes.keys().sorted().rev() {
+            let episode = self.episodes.get(id).unwrap();
             ans.push(episode.to_string())
         }
         ans
@@ -67,7 +69,7 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
     let mut title = "".to_string();
     let mut link = "".to_string();
     let mut image = "".to_string();
-    let mut episodes: Vec<Episode> = Vec::new();
+    let mut episodes: HashMap<usize, Episode> = HashMap::new();
     let body = reqwest::get(&url)
         .await
         .unwrap()
@@ -145,8 +147,9 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
         }else{
             image = "";
         }
+        println!("{} - {}", id, title);
         let episode = Episode::new(id, title, description, enclosure, link, image);
-        episodes.push(episode);
+        episodes.insert(id, episode);
     }
     Ok(Podcast{
         url,

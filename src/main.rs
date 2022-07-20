@@ -11,6 +11,7 @@ use regex::Regex;
 use std::fs::File;
 use std::io::BufReader;
 use rodio::{Decoder, OutputStream, source::Source, Sink};
+use itertools::Itertools;
 
 const NAME: &str =env!("CARGO_PKG_NAME");
 const DESCRIPTION: &str =env!("CARGO_PKG_DESCRIPTION");
@@ -70,7 +71,8 @@ async fn main(){
             Ok(choice) => {
                 println!("Selected {}", choice);
                 if choice.contains("List episodes"){
-                    for episode in podcast.get_episodes(){
+                    for id in podcast.get_episodes().keys().sorted(){
+                        let episode = podcast.get_episodes().get(id).unwrap();
                         println!("{}", episode);
                     }
                 }else if choice.contains("Get episode") {
@@ -81,7 +83,7 @@ async fn main(){
                             let re = Regex::new(r"(\d*)\.").unwrap();
                             let capture = re.captures(&choice).unwrap();
                             let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
-                            let episode = podcast.get_episodes().get(id - 1).unwrap();
+                            let episode = podcast.get_episodes().get(&id).unwrap();
                             episode.print();
                         },
                         Err(_) => println!("There was an error, please select again"),
@@ -94,7 +96,7 @@ async fn main(){
                             let re = Regex::new(r"(\d*)\.").unwrap();
                             let capture = re.captures(&choice).unwrap();
                             let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
-                            let episode = podcast.get_episodes().get(id - 1).unwrap();
+                            let episode = podcast.get_episodes().get(&id).unwrap();
                             episode.print();
                             let spinner = Spinner::new(&Spinners::Dots9,
                                                        "Downloading episode".to_string());
@@ -113,67 +115,21 @@ async fn main(){
         }
     }else if let Some(sub) = matches.subcommand_matches("list"){
         let url = sub.value_of("url").unwrap();
-        let first_string = sub.value_of("first");
-        let last_string = sub.value_of("last");
 
         let spinner = Spinner::new(&Spinners::Dots9,
                                    "Downloading feed".to_string());
         let podcast = get_rss(url).await.unwrap();
         let items = podcast.get_episodes();
         spinner.stop();
-        let total: i32 = items.len().try_into().unwrap();
-        let first = calc_first(first_string, total);
-        let mut last = calc_last(last_string, total);
-
-        if last < first{
-            last = first;
-        }
-
-        for (index, item) in items.iter().take((last + 1).try_into().unwrap()).skip(first.try_into().unwrap()).enumerate(){
+        for id in items.keys(){
             println!("{} {} {}",
                      "=====".cyan(),
-                     index.to_string().blue(),
+                     id.to_string().blue(),
                      "=====".cyan());
-            item.print();
+            items.get(id).unwrap().print();
         }
         process::exit(0);
     }
-}
-
-fn calc_first(first_value: Option<&str>, total: i32) -> i32{
-    if let Some(value) = first_value{
-        match value.parse::<i32>(){
-            Ok(fvalue) => {
-                if fvalue <= 0 && fvalue <= total {
-                    return total - fvalue;
-                }else if fvalue < 0 && fvalue > total {
-                    return 0;
-                } else {
-                    return fvalue - 1;
-                }
-            },
-            _ => return 0,
-        }
-    }
-    0
-}
-
-fn calc_last(last_value: Option<&str>, total: i32) -> i32{
-    if let Some(value) = last_value{
-        match value.parse::<i32>(){
-            Ok(fvalue) => {
-                if fvalue <= 0 && fvalue < total {
-                    return total - fvalue;
-                }else if fvalue <= 0 && fvalue > total {
-                    return total - 1;
-                } else {
-                    return fvalue - 1;
-                }
-            },
-            _ => return total - 1,
-        }
-    }
-    total - 1
 }
 
 fn play(filename: &str){
