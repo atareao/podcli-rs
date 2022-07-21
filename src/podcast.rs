@@ -4,7 +4,7 @@ use reqwest::Error;
 use std::{fmt, io::Cursor, fs::File, collections::HashMap};
 use itertools::Itertools;
 use html2md::parse_html;
-use termimad;
+use termimad::{self, MadSkin};
 
 pub struct Episode{
     id: usize,
@@ -201,8 +201,12 @@ impl Episode{
     pub fn print(&self){
         println!("{}: {}", "Title".red(), self.title.blue());
         println!("{}:", "Description".red());
-        termimad::print_inline(&self.description);
-        println!();
+
+        let mut skin = MadSkin::default();
+        skin.bold.set_fg(termimad::gray(19));
+        skin.set_headers_fg(termimad::rgb(255, 255, 0));
+        eprintln!("{}", skin.term_text(self.get_descrption()));
+
         println!("{}: {}", "Enclosure".red(), self.enclosure.magenta());
         println!("{}: {}", "Link".red(), self.link);
         println!("{}: {}", "Image".red(), self.image);
