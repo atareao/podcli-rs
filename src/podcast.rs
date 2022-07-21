@@ -3,6 +3,8 @@ use colored::*;
 use reqwest::Error;
 use std::{fmt, io::Cursor, fs::File, collections::HashMap};
 use itertools::Itertools;
+use html2md::parse_html;
+use termimad;
 
 pub struct Episode{
     id: usize,
@@ -87,7 +89,7 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
      */
     if let Some(node) = channel.children().find(|p| p.has_tag_name("description")){
         if let Some(text) = node.text(){
-            description = text.to_string();
+            description = parse_html(text);
         }
     }
     if let Some(node) = channel.children().find(|p| p.has_tag_name("title")){
@@ -120,9 +122,13 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
             title = "";
         }
         if let Some(value) = item.children().find(|p| p.has_tag_name("description")){
-            if let Some(text) = value.text(){ description = text; }else{ description = ""; }
+            if let Some(text) = value.text(){
+                description = parse_html(text);
+            }else{
+                description = "".to_string();
+            }
         }else{
-            description = "";
+            description = "".to_string();
         }
         if let Some(value) = item.children().find(|p| p.has_tag_name("enclosure")){
             if let Some(attribute) = value.attributes().iter().find(|a| a.name() == "url"){
@@ -148,7 +154,7 @@ pub async fn get_rss(url: &str)->Result<Podcast, Error>{
             image = "";
         }
         println!("{} - {}", id, title);
-        let episode = Episode::new(id, title, description, enclosure, link, image);
+        let episode = Episode::new(id, title, &description, enclosure, link, image);
         episodes.insert(id, episode);
     }
     Ok(Podcast{
@@ -194,7 +200,9 @@ impl Episode{
 
     pub fn print(&self){
         println!("{}: {}", "Title".red(), self.title.blue());
-        println!("{}: {}", "Description".red(), self.description);
+        println!("{}:", "Description".red());
+        termimad::print_inline(&self.description);
+        println!();
         println!("{}: {}", "Enclosure".red(), self.enclosure.magenta());
         println!("{}: {}", "Link".red(), self.link);
         println!("{}: {}", "Image".red(), self.image);

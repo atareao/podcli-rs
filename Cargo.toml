@@ -7,6 +7,8 @@ authors = ["Lorenzo Carbonell (a.k.a. atareao) <lorenzo.carbonell.cerezo@gmail.c
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+termimad = "0.14"
+html2md = "0.2"
 itertools = "0.10"
 regex = "1.6"
 inquire = "0.2"

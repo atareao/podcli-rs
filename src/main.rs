@@ -58,9 +58,7 @@ async fn main(){
                     )
         .get_matches();
     let url = matches.value_of("url").unwrap();
-    println!("{:?}", url);
     if matches.is_present("interactive"){
-    println!("{:?}", "aqui");
         let spinner = Spinner::new(&Spinners::Dots9,
                                    "Downloading feed".to_string());
         let podcast = get_rss(url).await.unwrap();
