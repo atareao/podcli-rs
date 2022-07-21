@@ -1,6 +1,7 @@
 mod podcast;
 
 use std::process;
+use crate::podcast::Podcast;
 
 use clap::{App, Arg, AppSettings};
 use spinners::{Spinner, Spinners};
@@ -63,53 +64,8 @@ async fn main(){
                                    "Downloading feed".to_string());
         let podcast = get_rss(url).await.unwrap();
         spinner.stop();
-        let options = vec!["List episodes", "Get episode", "Play episode"];
-        let ans = Select::new("Select option:", options).prompt();
-        match ans {
-            Ok(choice) => {
-                println!("Selected {}", choice);
-                if choice.contains("List episodes"){
-                    for id in podcast.get_episodes().keys().sorted(){
-                        let episode = podcast.get_episodes().get(id).unwrap();
-                        println!("{}", episode);
-                    }
-                }else if choice.contains("Get episode") {
-                    let ans = Select::new("Select option:", podcast.get_titles()).prompt();
-                    match ans{
-                        Ok(choice) => {
-                            println!("{}", &choice);
-                            let re = Regex::new(r"(\d*)\.").unwrap();
-                            let capture = re.captures(&choice).unwrap();
-                            let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
-                            let episode = podcast.get_episodes().get(&id).unwrap();
-                            episode.print();
-                        },
-                        Err(_) => println!("There was an error, please select again"),
-                    }
-                }else if choice.contains("Play episode") {
-                    let ans = Select::new("Select option:", podcast.get_titles()).prompt();
-                    match ans{
-                        Ok(choice) => {
-                            println!("{}", &choice);
-                            let re = Regex::new(r"(\d*)\.").unwrap();
-                            let capture = re.captures(&choice).unwrap();
-                            let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
-                            let episode = podcast.get_episodes().get(&id).unwrap();
-                            episode.print();
-                            let spinner = Spinner::new(&Spinners::Dots9,
-                                                       "Downloading episode".to_string());
-                            let filename = format!("/tmp/{}.mp3", id);
-                            println!("{:?}", &filename);
-                            episode.download(&filename).await;
-                            spinner.message("Playing...".to_string());
-                            play(&filename);
-                            spinner.stop();
-                        },
-                        Err(_) => println!("There was an error, please select again"),
-                    }
-                }
-            },
-            Err(_) => println!("There was an error, please select again"),
+        loop{
+            interactive(&podcast).await;
         }
     }else if let Some(sub) = matches.subcommand_matches("list"){
         let url = sub.value_of("url").unwrap();
@@ -137,6 +93,58 @@ fn play(filename: &str){
     let sink = Sink::try_new(&stream_handle).unwrap();
     sink.append(source);
     sink.sleep_until_end();
+}
+
+async fn interactive(podcast: &Podcast){
+    let options = vec!["1. List episodes", "2. Get episode", "3. Play episode", "4. Exit"];
+    let ans = Select::new("Select option:", options).prompt();
+    match ans {
+        Ok(choice) => {
+            println!("Selected {}", choice);
+            if choice.contains("List episodes"){
+                for id in podcast.get_episodes().keys().sorted(){
+                    let episode = podcast.get_episodes().get(id).unwrap();
+                    println!("{}", episode);
+                }
+            }else if choice.contains("Get episode") {
+                let ans = Select::new("Select option:", podcast.get_titles()).prompt();
+                match ans{
+                    Ok(choice) => {
+                        println!("{}", &choice);
+                        let re = Regex::new(r"(\d*)\.").unwrap();
+                        let capture = re.captures(&choice).unwrap();
+                        let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
+                        let episode = podcast.get_episodes().get(&id).unwrap();
+                        episode.print();
+                    },
+                    Err(_) => println!("There was an error, please select again"),
+                }
+            }else if choice.contains("Play episode") {
+                let ans = Select::new("Select option:", podcast.get_titles()).prompt();
+                match ans{
+                    Ok(choice) => {
+                        println!("{}", &choice);
+                        let re = Regex::new(r"(\d*)\.").unwrap();
+                        let capture = re.captures(&choice).unwrap();
+                        let id = capture.get(1).map_or("", |m| m.as_str()).parse::<usize>().unwrap();
+                        let episode = podcast.get_episodes().get(&id).unwrap();
+                        episode.print();
+                        let spinner = Spinner::new(&Spinners::Dots9,
+                                                   "Downloading episode".to_string());
+                        let filename = format!("/tmp/{}.mp3", id);
+                        println!("{:?}", &filename);
+                        episode.download(&filename).await;
+                        spinner.message("Playing...".to_string());
+                        play(&filename);
+                        spinner.stop();
+                    },
+                    Err(_) => println!("There was an error, please select again"),
+                }
+            }
+        },
+        Err(_) => println!("There was an error, please select again"),
+        }
+
 }
 
 
