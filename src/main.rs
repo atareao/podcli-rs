@@ -106,6 +106,8 @@ async fn interactive(podcast: &Podcast){
                     let episode = podcast.get_episodes().get(id).unwrap();
                     println!("{}", episode);
                 }
+            }else if choice.contains("Exit") {
+                process::exit(0);
             }else if choice.contains("Get episode") {
                 let ans = Select::new("Select option:", podcast.get_titles()).prompt();
                 match ans{
