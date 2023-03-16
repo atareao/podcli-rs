@@ -67,7 +67,7 @@ async fn main() {
         .get_matches();
     let url = matches.value_of("url").unwrap();
     if matches.is_present("interactive") {
-        let spinner = Spinner::new(&Spinners::Dots9, "Downloading feed".to_string());
+        let mut spinner = Spinner::new(Spinners::Dots9, "Downloading feed".to_string());
         let podcast = get_rss(url).await.unwrap();
         spinner.stop();
         loop {
@@ -76,7 +76,7 @@ async fn main() {
     } else if let Some(sub) = matches.subcommand_matches("list") {
         let url = sub.value_of("url").unwrap();
 
-        let spinner = Spinner::new(&Spinners::Dots9, "Downloading feed".to_string());
+        let mut spinner = Spinner::new(Spinners::Dots9, "Downloading feed".to_string());
         let podcast = get_rss(url).await.unwrap();
         let items = podcast.get_episodes();
         spinner.stop();
@@ -151,12 +151,11 @@ async fn interactive(podcast: &Podcast) {
                             .unwrap();
                         let episode = podcast.get_episodes().get(&id).unwrap();
                         episode.print();
-                        let spinner =
-                            Spinner::new(&Spinners::Dots9, "Downloading episode".to_string());
+                        let mut spinner =
+                            Spinner::new(Spinners::Dots9, "Downloading episode".to_string());
                         let filename = format!("/tmp/{}.mp3", id);
                         println!("{:?}", &filename);
                         episode.download(&filename).await;
-                        spinner.message("Playing...".to_string());
                         play(&filename);
                         spinner.stop();
                     }

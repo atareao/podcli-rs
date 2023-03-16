@@ -17,7 +17,7 @@ clap = {version = "3.0.0", features = ["derive"]}
 tokio = { version = "1.19.2", features = ["full"]}
 reqwest = "0.11"
 roxmltree = "0.14"
-spinners = "2.0"
+spinners = "4.1"
 colored = "2"
 # the player
 #gstreamer = "0.17.4"
