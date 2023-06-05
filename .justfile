@@ -10,6 +10,17 @@ build:
 tag:
     docker tag {{user}}/{{name}}:{{version}} {{user}}/{{name}}:latest
 
+test:
+    #--platform=linux/amd64,linux/arm64/v8,linux/arm/v7 \
+    export DOCKER_BUILDKIT=1
+    docker buildx build \
+        --progress=plain \
+        --platform=linux/amd64,linux/arm64/v8,linux/arm/v7 \
+        --tag {{user}}/{{name}}:latest \
+        --tag  {{user}}/{{name}}:{{version}} \
+        --push \
+        .
+
 push:
     docker push {{user}}/{{name}}:{{version}}
     docker push {{user}}/{{name}}:latest

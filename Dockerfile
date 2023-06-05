@@ -2,8 +2,17 @@
 ## Builder
 ###############################################################################
 FROM rust:latest AS builder
+LABEL maintainer="Lorenzo Carbonell <a.k.a. atareao> lorenzo.carbonell.cerezo@gmail.com"
+ARG TARGETPLATFORM
 
-RUN rustup target add x86_64-unknown-linux-musl && \
+ENV RUST_MUSL_CROSS_TARGET=$TARGETPLATFORM
+
+COPY ./platform.sh /platform.sh
+RUN /platform.sh && \
+    echo $TARGETPLATFORM && \
+    cat /.target
+
+RUN rustup target add "$(cat /.target)" && \
     apt-get update && \
     apt-get install -y \
         pkg-config \
@@ -25,6 +34,8 @@ WORKDIR /app
 COPY ./ .
 
 RUN cargo build  --target x86_64-unknown-linux-musl --release
+RUN cross build --release --target $(cat /.target) && \
+    cp /app/target/$(cat /.target)/release/podcli /app/podcli
 
 ###############################################################################
 ## Final image
@@ -36,10 +47,9 @@ RUN apk add tini libressl-dev
 WORKDIR /app
 
 # Copy our build
-COPY --from=builder /app/target/release/podcli ./
+COPY --from=builder /app/podcli ./
 
 # Use an unprivileged user.
 USER dockeruser
 
-ENTRYPOINT ["tini", "--", "/app/podcli"]
-CMD ["-h"]
+CMD ["/app/podcli"]
