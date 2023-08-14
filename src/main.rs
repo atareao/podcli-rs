@@ -81,11 +81,9 @@ async fn main() {
         },
         Commands::Interactive(args) =>{
             let url = &args.url;
-            let mut spinner = Spinner::new(Spinners::Dots9, "Downloading feed".to_string());
-            let podcast = get_rss(url).await.unwrap();
-            spinner.stop();
+            let mut podcast = get_podcast(url).await;
             loop {
-                interactive(&podcast).await;
+                interactive(&mut podcast, url).await;
             }
 
         }
@@ -102,12 +100,20 @@ fn play(filename: &str) {
     sink.sleep_until_end();
 }
 
-async fn interactive(podcast: &Podcast) {
+async fn get_podcast(url: &str) -> Podcast{
+    let mut spinner = Spinner::new(Spinners::Dots9, "Downloading feed".to_string());
+    let podcast = get_rss(url).await.unwrap();
+    spinner.stop();
+    podcast
+}
+
+async fn interactive(podcast: &mut Podcast, url: &str) {
     let options = vec![
         "1. List episodes",
         "2. Get episode",
         "3. Play episode",
-        "4. Exit",
+        "4. Reload",
+        "5. Exit",
     ];
     let ans = Select::new("Select option:", options).prompt();
     match ans {
@@ -118,8 +124,6 @@ async fn interactive(podcast: &Podcast) {
                     let episode = podcast.get_episodes().get(id).unwrap();
                     println!("{}", episode);
                 }
-            } else if choice.contains("Exit") {
-                process::exit(0);
             } else if choice.contains("Get episode") {
                 let ans = Select::new("Select option:", podcast.get_titles()).prompt();
                 match ans {
@@ -161,6 +165,12 @@ async fn interactive(podcast: &Podcast) {
                     }
                     Err(_) => println!("There was an error, please select again"),
                 }
+            } else if choice.contains("Reload") {
+                let mut spinner = Spinner::new(Spinners::Dots9, "Downloading feed".to_string());
+                *podcast = get_rss(url).await.unwrap();
+                spinner.stop();
+            } else if choice.contains("Exit") {
+                process::exit(0);
             }
         }
         Err(_) => println!("There was an error, please select again"),
