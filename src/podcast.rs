@@ -126,7 +126,7 @@ pub async fn get_rss(url: &str) -> Result<Podcast, Error> {
             description = "".to_string();
         }
         if let Some(value) = item.children().find(|p| p.has_tag_name("enclosure")) {
-            if let Some(attribute) = value.attributes().iter().find(|a| a.name() == "url") {
+            if let Some(attribute) = value.attributes().find(|a| a.name() == "url") {
                 enclosure = attribute.value();
             } else {
                 enclosure = "";
@@ -144,7 +144,7 @@ pub async fn get_rss(url: &str) -> Result<Podcast, Error> {
             link = "";
         }
         if let Some(value) = item.children().find(|p| p.has_tag_name("image")) {
-            if let Some(attribute) = value.attributes().iter().find(|a| a.name() == "href") {
+            if let Some(attribute) = value.attributes().find(|a| a.name() == "href") {
                 image = attribute.value();
             } else {
                 image = "";

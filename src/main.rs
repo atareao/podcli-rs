@@ -1,7 +1,7 @@
 mod podcast;
 
 use crate::podcast::Podcast;
-use std::process;
+use std::{env, process, str::FromStr};
 
 use crate::podcast::get_rss;
 use colored::*;
@@ -10,6 +10,12 @@ use itertools::Itertools;
 use regex::Regex;
 use rodio::{Decoder, OutputStream, Sink};
 use spinners::{Spinner, Spinners};
+use tracing_subscriber::{
+    layer::SubscriberExt,
+    util::SubscriberInitExt,
+    EnvFilter
+};
+use tracing::{debug, error, info};
 use std::fs::File;
 use std::io::BufReader;
 use clap::{Parser, Args, Subcommand, ArgAction};
@@ -61,6 +67,15 @@ struct InteractiveArgs{
 
 #[tokio::main]
 async fn main() {
+    let log_level = env::var("RUST_LOG").unwrap_or("DEBUG".to_string());
+
+    tracing_subscriber::registry()
+        .with(EnvFilter::from_str(&log_level).unwrap())
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
+    debug!("log_level: {}", log_level);
+
     let cli = Cli::parse();
     match &cli.command{
         Commands::List(args) => {
@@ -92,6 +107,7 @@ async fn main() {
 }
 
 fn play(filename: &str) {
+    debug!("play: {}", filename);
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let file = BufReader::new(File::open(filename).unwrap());
     let source = Decoder::new(file).unwrap();
@@ -101,6 +117,7 @@ fn play(filename: &str) {
 }
 
 async fn get_podcast(url: &str) -> Podcast{
+    info!("get_podcast: {}", url);
     let mut spinner = Spinner::new(Spinners::Dots9, "Downloading feed".to_string());
     let podcast = get_rss(url).await.unwrap();
     spinner.stop();
@@ -159,7 +176,12 @@ async fn interactive(podcast: &mut Podcast, url: &str) {
                             Spinner::new(Spinners::Dots9, "Downloading episode".to_string());
                         let filename = format!("/tmp/{}.mp3", id);
                         println!("{:?}", &filename);
-                        episode.download(&filename).await;
+                        match episode.download(&filename).await{
+                            Ok(result) => {
+                                debug!("Downloaded: {}", result);
+                            },
+                            Err(e) => error!("Can not download by: {}", e),
+                        }
                         play(&filename);
                         spinner.stop();
                     }
