@@ -132,9 +132,10 @@ async fn interactive(podcast: &mut Podcast, url: &str) {
         "4. Reload",
         "5. Exit",
     ];
-    let ans = Select::new("Select option:", options).prompt();
+    let ans = Select::new("Select option:", options).prompt_skippable();
     match ans {
-        Ok(choice) => {
+        Ok(response) => {
+            let choice = response.unwrap_or("Exit");
             println!("Selected {}", choice);
             if choice.contains("List episodes") {
                 for id in podcast.get_episodes().keys().sorted() {
@@ -195,7 +196,7 @@ async fn interactive(podcast: &mut Podcast, url: &str) {
                 process::exit(0);
             }
         }
-        Err(_) => println!("There was an error, please select again"),
+        Err(e) => println!("There was an error, please select again: {e}"),
     }
 }
 
