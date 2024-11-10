@@ -7,20 +7,20 @@ authors = ["Lorenzo Carbonell (a.k.a. atareao) <lorenzo.carbonell.cerezo@gmail.c
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-termimad = "0.29"
+termimad = "0.30"
 html2md = "0.2"
 itertools = "0.13"
-regex = "1.10"
+regex = "1.11"
 inquire = "0.7"
 clap = {version = "4.5", features = ["derive"]}
-tokio = { version = "1.37", features = ["full"]}
+tokio = { version = "1.40", features = ["full"]}
 reqwest = "0.12"
 roxmltree = "0.20"
 spinners = "4.1"
 colored = "2"
 # the player
 #gstreamer = "0.17.4"
-rodio = "0.18"
+rodio = "0.19"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["local-time", "env-filter"] }
 # glib-sys = "0.15"
