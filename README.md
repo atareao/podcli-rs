@@ -6,10 +6,10 @@
 	<em>Discover, download, enjoy - podcasts simplified!</em>
 </p>
 <p align="center">
-	<img src="https://img.shields.io/github/license/atareao/podcli-rs.git?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
-	<img src="https://img.shields.io/github/last-commit/atareao/podcli-rs.git?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
-	<img src="https://img.shields.io/github/languages/top/atareao/podcli-rs.git?style=default&color=0080ff" alt="repo-top-language">
-	<img src="https://img.shields.io/github/languages/count/atareao/podcli-rs.git?style=default&color=0080ff" alt="repo-language-count">
+	<img src="https://img.shields.io/github/license/atareao/podcli-rs?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
+	<img src="https://img.shields.io/github/last-commit/atareao/podcli-rs?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+	<img src="https://img.shields.io/github/languages/top/atareao/podcli-rs?style=default&color=0080ff" alt="repo-top-language">
+	<img src="https://img.shields.io/github/languages/count/atareao/podcli-rs?style=default&color=0080ff" alt="repo-language-count">
 </p>
 <p align="center"><!-- default option, no dependency badges. -->
 </p>
