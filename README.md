@@ -38,7 +38,13 @@
 
 ##  Overview
 
-podcli-rs is an open-source, cross-platform command-line tool that simplifies podcast management. With an intuitive interface, it allows users to effortlessly discover, download, and enjoy their favorite podcasts right from the terminal. Built with Rust and designed for efficiency, podcli-rs is perfect for podcast enthusiasts and command-line aficionados seeking a streamlined podcast experience.
+**podcli-rs** is an open-source, cross-platform command-line tool that simplifies podcast management. With an intuitive interface, it allows users to effortlessly discover, download, and enjoy their favorite podcasts right from the terminal. Built with Rust and designed for efficiency, podcli-rs is perfect for podcast enthusiasts and command-line aficionados seeking a streamlined podcast experience.
+
+---
+
+## Use
+
+
 
 ---
 
