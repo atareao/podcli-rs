@@ -8,7 +8,7 @@ use colored::*;
 use inquire::Select;
 use itertools::Itertools;
 use regex::Regex;
-use rodio::{Decoder, OutputStream, Sink};
+use rodio::{Decoder, OutputStream, Sink, OutputStreamBuilder};
 use spinners::{Spinner, Spinners};
 use tracing_subscriber::{
     layer::SubscriberExt,
@@ -108,10 +108,10 @@ async fn main() {
 
 fn play(filename: &str) {
     debug!("play: {}", filename);
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    let stream_handle = OutputStreamBuilder::open_default_stream().unwrap();
     let file = BufReader::new(File::open(filename).unwrap());
+    let sink = Sink::connect_new(stream_handle.mixer());
     let source = Decoder::new(file).unwrap();
-    let sink = Sink::try_new(&stream_handle).unwrap();
     sink.append(source);
     sink.sleep_until_end();
 }
