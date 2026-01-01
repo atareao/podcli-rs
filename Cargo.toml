@@ -21,7 +21,7 @@ colored = "3"
 # the player
 #gstreamer = "0.17.4"
 rodio = "0.21"
-tracing = "0.1.43"
+tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["local-time", "env-filter"] }
 # glib-sys = "0.15"
 
