@@ -21,6 +21,11 @@ jobs:
         with:
           toolchain: stable
       
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev pkg-config
+
       - name: Build release binary
         run: cargo build --release --verbose
       
@@ -35,7 +40,7 @@ jobs:
           sha256sum podcli-linux-x86_64 > podcli-linux-x86_64.sha256
       
       - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             target/release/podcli-linux-x86_64
