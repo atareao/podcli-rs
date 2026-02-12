@@ -1,54 +1,24 @@
-user    := "atareao"
-name    := `basename ${PWD}`
-version := `git tag -l  | tail -n1`
+user     := "atareao"
+name     := `basename ${PWD}`
+version  := `vampus show`
 
-build:
-    echo {{version}}
-    echo {{name}}
-    docker build -t {{user}}/{{name}}:{{version}} .
+list:
+    @just --list
 
-tag:
-    docker tag {{user}}/{{name}}:{{version}} {{user}}/{{name}}:latest
+install:
+    cargo install --path .
 
-test:
-    #--platform=linux/amd64,linux/arm64/v8,linux/arm/v7 \
-    export DOCKER_BUILDKIT=1
-    docker buildx build \
-        --progress=plain \
-        --platform=linux/amd64,linux/arm64/v8,linux/arm/v7 \
-        --tag {{user}}/{{name}}:latest \
-        --tag  {{user}}/{{name}}:{{version}} \
-        --push \
-        .
+upgrade:
+    @vampus upgrade --patch
 
-push:
-    docker push {{user}}/{{name}}:{{version}}
-    docker push {{user}}/{{name}}:latest
+release:
+    @git add .
+    @git commit -m ":bookmark: Release v{{version}}"
+    @git tag -a v{{version}} -m "Release v{{version}}"
+    @git push origin main
+    @git push origin v{{version}}
 
-buildx:
-    #!/usr/bin/env bash
-    #--platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
-    docker buildx build \
-           --push \
-           --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
-           --tag {{user}}/{{name}}:{{version}} .
-
-run:
-    docker run --rm \
-               --init \
-               --name croni \
-               --init \
-               --env_file croni.env \
-               -v ${PWD}/crontab:/crontab \
-               {{user}}/{{name}}:{{version}}
-
-sh:
-    docker run --rm \
-               -it \
-               --name croni \
-               --init \
-               --env-file croni.env \
-               -v ${PWD}/crontab:/crontab \
-               {{user}}/{{name}}:{{version}} \
-               sh
+    @gh release create v{{version}} \
+        --title "Release v{{version}}" \
+        --notes "Release v{{version}}"
 
