@@ -1,9 +1,18 @@
 # Changelog
+## [0.4.0] - 2026-06-04
+
+### Features
+
+- Add download-dir, playback speed, and episode duration
 ## [0.3.2] - 2026-06-04
 
 ### Documentation
 
 - Rewrite README in English with improved structure
+
+### Miscellaneous Tasks
+
+- Release v0.3.2
 ## [0.3.1] - 2026-06-04
 
 ### Bug Fixes
