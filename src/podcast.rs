@@ -33,6 +33,7 @@ pub struct Podcast {
 }
 
 impl Podcast {
+    #[allow(dead_code)]
     pub async fn new(url: &str) -> Result<Podcast, Error> {
         get_rss(url).await
     }
@@ -41,14 +42,17 @@ impl Podcast {
         &self.episodes
     }
 
+    #[allow(dead_code)]
     pub fn get_title(&self) -> &str {
         &self.title
     }
 
+    #[allow(dead_code)]
     pub fn get_description(&self) -> &str {
         &self.description
     }
 
+    #[allow(dead_code)]
     async fn get_raw_rss(url: &str) -> Result<String, Error> {
         return reqwest::get(url).await.unwrap().text().await;
     }
@@ -187,22 +191,27 @@ impl Episode {
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_id(&self) -> &usize {
         &self.id
     }
 
+    #[allow(dead_code)]
     pub fn get_title(&self) -> &str {
         &self.title
     }
 
+    #[allow(dead_code)]
     pub fn get_descrption(&self) -> &str {
         &self.description
     }
 
+    #[allow(dead_code)]
     pub fn get_enclosure(&self) -> &str {
         &self.enclosure
     }
 
+    #[allow(dead_code)]
     pub fn get_link(&self) -> &str {
         &self.link
     }
