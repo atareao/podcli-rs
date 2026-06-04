@@ -1,4 +1,9 @@
 # Changelog
+## [0.2.1] - 2026-06-04
+
+### Bug Fixes
+
+- Add crates.io metadata to Cargo.toml
 ## [0.2.0] - 2026-06-04
 
 ### Bug Fixes
@@ -13,6 +18,10 @@
 - Add gitflow CI/CD setup with version bump and changelog
 - Update release workflow for multi-platform and crates.io publish
 - Improve release workflow for Linux-only builds
+
+### Miscellaneous Tasks
+
+- Release v0.2.0
 
 ### Styling
 
