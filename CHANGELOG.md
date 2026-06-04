@@ -1,9 +1,23 @@
 # Changelog
+## [0.3.0] - 2026-06-04
+
+### Bug Fixes
+
+- (release) Remove broken Cargo.lock restore step in publish job
+- (release) Remove broken Cargo.lock restore step in publish job
+
+### Features
+
+- Add workflow_dispatch trigger to release-prepare
 ## [0.2.1] - 2026-06-04
 
 ### Bug Fixes
 
 - Add crates.io metadata to Cargo.toml
+
+### Miscellaneous Tasks
+
+- Release v0.2.1
 ## [0.2.0] - 2026-06-04
 
 ### Bug Fixes
