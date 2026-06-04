@@ -14,11 +14,22 @@ pub struct Episode {
     enclosure: String,
     link: String,
     image: String,
+    duration: String,
 }
 
 impl fmt::Display for Episode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}. {}", self.id, self.title)
+        write!(
+            f,
+            "{}. {} [{}]",
+            self.id,
+            self.title,
+            if self.duration.is_empty() {
+                "?".to_string()
+            } else {
+                self.duration.clone()
+            }
+        )
     }
 }
 
@@ -113,6 +124,7 @@ pub async fn get_rss(url: &str) -> Result<Podcast, Error> {
         let enclosure;
         let link;
         let image;
+        let duration;
         if let Some(value) = item.children().find(|p| p.has_tag_name("title")) {
             if let Some(text) = value.text() {
                 title = text;
@@ -158,8 +170,17 @@ pub async fn get_rss(url: &str) -> Result<Podcast, Error> {
         } else {
             image = "";
         }
+        if let Some(value) = item.children().find(|p| p.has_tag_name("duration")) {
+            if let Some(text) = value.text() {
+                duration = text;
+            } else {
+                duration = "";
+            }
+        } else {
+            duration = "";
+        }
         println!("{} - {}", id, title);
-        let episode = Episode::new(id, title, &description, enclosure, link, image);
+        let episode = Episode::new(id, title, &description, enclosure, link, image, duration);
         episodes.insert(id, episode);
     }
     Ok(Podcast {
@@ -180,6 +201,7 @@ impl Episode {
         enclosure: &str,
         link: &str,
         image: &str,
+        duration: &str,
     ) -> Self {
         Self {
             id,
@@ -188,6 +210,7 @@ impl Episode {
             enclosure: enclosure.to_string(),
             link: link.to_string(),
             image: image.to_string(),
+            duration: duration.to_string(),
         }
     }
 
@@ -202,7 +225,7 @@ impl Episode {
     }
 
     #[allow(dead_code)]
-    pub fn get_descrption(&self) -> &str {
+    pub fn get_description(&self) -> &str {
         &self.description
     }
 
@@ -216,6 +239,11 @@ impl Episode {
         &self.link
     }
 
+    #[allow(dead_code)]
+    pub fn get_duration(&self) -> &str {
+        &self.duration
+    }
+
     pub fn print(&self) {
         println!("{}: {}", "Title".red(), self.title.blue());
         println!("{}:", "Description".red());
@@ -223,11 +251,14 @@ impl Episode {
         let mut skin = MadSkin::default();
         skin.bold.set_fg(termimad::gray(19));
         skin.set_headers_fg(termimad::rgb(255, 255, 0));
-        eprintln!("{}", skin.term_text(self.get_descrption()));
+        eprintln!("{}", skin.term_text(self.get_description()));
 
         println!("{}: {}", "Enclosure".red(), self.enclosure.magenta());
         println!("{}: {}", "Link".red(), self.link);
         println!("{}: {}", "Image".red(), self.image);
+        if !self.duration.is_empty() {
+            println!("{}: {}", "Duration".red(), self.duration.green());
+        }
     }
 
     pub async fn download(&self, filename: &str) -> Result<bool, Error> {

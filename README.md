@@ -101,15 +101,29 @@ podcli list --url https://feeds.simplecast.com/54nVymd2 --json
 Browse episodes with an interactive menu:
 
 ```sh
+# Basic usage
 podcli interactive --url https://feeds.simplecast.com/54nVymd2
+
+# Specify download directory
+podcli interactive --url https://feeds.simplecast.com/54nVymd2 --download-dir ~/podcasts
+
+# Change playback speed (0.5 = half, 2.0 = double)
+podcli interactive --url https://feeds.simplecast.com/54nVymd2 --speed 1.5
 ```
 
 Interactive mode options:
-1. **List episodes** — Display all episodes
+1. **List episodes** — Display all episodes (with duration)
 2. **Get episode** — Show details for a specific episode
 3. **Play episode** — Download and play an episode
 4. **Reload** — Refresh the RSS feed
 5. **Exit** — Quit the application
+
+### Global Options
+
+Available for all subcommands:
+
+- `--download-dir <DIR>` — Directory to store downloaded episodes (default: `/tmp`)
+- `--speed <SPEED>` — Playback speed: `0.5` (half), `1.0` (normal), `2.0` (double)
 
 ### Environment Variables
 

@@ -26,6 +26,14 @@ struct Cli {
     /// debug podcli
     debug: bool,
 
+    #[arg(short, long, value_name = "DIR")]
+    /// Directory to store downloaded episodes
+    download_dir: Option<String>,
+
+    #[arg(long, value_name = "SPEED", default_value_t = 1.0)]
+    /// Playback speed (1.0 = normal, 0.5 = half, 2.0 = double)
+    speed: f32,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -91,19 +99,22 @@ async fn main() {
         Commands::Interactive(args) => {
             let url = &args.url;
             let mut podcast = get_podcast(url).await;
+            let download_dir = cli.download_dir.clone();
+            let speed = cli.speed;
             loop {
-                interactive(&mut podcast, url).await;
+                interactive(&mut podcast, url, download_dir.as_deref(), speed).await;
             }
         }
     }
     process::exit(0);
 }
 
-fn play(filename: &str) {
+fn play(filename: &str, speed: f32) {
     debug!("play: {}", filename);
     let stream_handle = OutputStreamBuilder::open_default_stream().unwrap();
     let file = BufReader::new(File::open(filename).unwrap());
     let sink = Sink::connect_new(stream_handle.mixer());
+    sink.set_speed(speed);
     let source = Decoder::new(file).unwrap();
     sink.append(source);
     sink.sleep_until_end();
@@ -117,7 +128,7 @@ async fn get_podcast(url: &str) -> Podcast {
     podcast
 }
 
-async fn interactive(podcast: &mut Podcast, url: &str) {
+async fn interactive(podcast: &mut Podcast, url: &str, download_dir: Option<&str>, speed: f32) {
     let options = vec![
         "1. List episodes",
         "2. Get episode",
@@ -166,9 +177,8 @@ async fn interactive(podcast: &mut Podcast, url: &str) {
                             .unwrap();
                         let episode = podcast.get_episodes().get(&id).unwrap();
                         episode.print();
-                        let mut spinner =
-                            Spinner::new(Spinners::Dots9, "Downloading episode".to_string());
-                        let filename = format!("/tmp/{}.mp3", id);
+                        let dir = download_dir.unwrap_or("/tmp");
+                        let filename = format!("{}/{}.mp3", dir, id);
                         println!("{:?}", &filename);
                         match episode.download(&filename).await {
                             Ok(result) => {
@@ -176,8 +186,7 @@ async fn interactive(podcast: &mut Podcast, url: &str) {
                             }
                             Err(e) => error!("Can not download by: {}", e),
                         }
-                        play(&filename);
-                        spinner.stop();
+                        play(&filename, speed);
                     }
                     Err(_) => println!("There was an error, please select again"),
                 }
