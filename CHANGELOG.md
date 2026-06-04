@@ -1,4 +1,9 @@
 # Changelog
+## [0.3.1] - 2026-06-04
+
+### Bug Fixes
+
+- (release) Add system dependencies to publish job for crates.io
 ## [0.3.0] - 2026-06-04
 
 ### Bug Fixes
@@ -9,6 +14,10 @@
 ### Features
 
 - Add workflow_dispatch trigger to release-prepare
+
+### Miscellaneous Tasks
+
+- Release v0.3.0
 ## [0.2.1] - 2026-06-04
 
 ### Bug Fixes
