@@ -217,3 +217,4 @@ Este proyecto está bajo la licencia MIT. Consulta el archivo `LICENSE` para los
 
 Para dudas o reportes de errores utiliza el [sistema de issues](https://github.com/atareao/podcli-rs/issues) del repositorio.
 # Test CI
+# v0.1.8
