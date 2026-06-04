@@ -1,75 +1,84 @@
 # Changelog
+## [0.5.0] - 2026-06-04
+
+### ✨ Features
+
+- Add emojis to changelog groups
 ## [0.4.0] - 2026-06-04
 
-### Features
+### ✨ Features
 
 - Add download-dir, playback speed, and episode duration
+
+### 🔧 Miscellaneous Tasks
+
+- Release v0.4.0
 ## [0.3.2] - 2026-06-04
 
-### Documentation
+### 📝 Documentation
 
 - Rewrite README in English with improved structure
 
-### Miscellaneous Tasks
+### 🔧 Miscellaneous Tasks
 
 - Release v0.3.2
 ## [0.3.1] - 2026-06-04
 
-### Bug Fixes
+### 🐛 Bug Fixes
 
 - (release) Add system dependencies to publish job for crates.io
 
-### Miscellaneous Tasks
+### 🔧 Miscellaneous Tasks
 
 - Release v0.3.1
 ## [0.3.0] - 2026-06-04
 
-### Bug Fixes
-
-- (release) Remove broken Cargo.lock restore step in publish job
-- (release) Remove broken Cargo.lock restore step in publish job
-
-### Features
+### ✨ Features
 
 - Add workflow_dispatch trigger to release-prepare
 
-### Miscellaneous Tasks
+### 🐛 Bug Fixes
+
+- (release) Remove broken Cargo.lock restore step in publish job
+- (release) Remove broken Cargo.lock restore step in publish job
+
+### 🔧 Miscellaneous Tasks
 
 - Release v0.3.0
 ## [0.2.1] - 2026-06-04
 
-### Bug Fixes
+### 🐛 Bug Fixes
 
 - Add crates.io metadata to Cargo.toml
 
-### Miscellaneous Tasks
+### 🔧 Miscellaneous Tasks
 
 - Release v0.2.1
 ## [0.2.0] - 2026-06-04
 
-### Bug Fixes
+### ✅ Testing
+
+- Fix failing test
+- Verify CI on development
+
+### ✨ Features
+
+- Add gitflow CI/CD setup with version bump and changelog
+- Update release workflow for multi-platform and crates.io publish
+- Improve release workflow for Linux-only builds
+
+### 🐛 Bug Fixes
 
 - Resolve clippy warnings
 - Resolve all clippy warnings
 - Only build Linux binaries in release
 - Correct git-cliff template syntax
 
-### Features
-
-- Add gitflow CI/CD setup with version bump and changelog
-- Update release workflow for multi-platform and crates.io publish
-- Improve release workflow for Linux-only builds
-
-### Miscellaneous Tasks
-
-- Release v0.2.0
-
-### Styling
+### 💄 Styling
 
 - Fix formatting
 
-### Testing
+### 🔧 Miscellaneous Tasks
 
-- Fix failing test
-- Verify CI on development
+- Release v0.2.0
 ## [0.1.4] - 2026-02-12
