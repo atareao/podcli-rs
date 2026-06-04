@@ -1,9 +1,18 @@
 # Changelog
+## [0.3.2] - 2026-06-04
+
+### Documentation
+
+- Rewrite README in English with improved structure
 ## [0.3.1] - 2026-06-04
 
 ### Bug Fixes
 
 - (release) Add system dependencies to publish job for crates.io
+
+### Miscellaneous Tasks
+
+- Release v0.3.1
 ## [0.3.0] - 2026-06-04
 
 ### Bug Fixes
