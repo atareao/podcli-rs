@@ -3,6 +3,10 @@ name = "podcli"
 version = "0.2.0"
 edition = "2021"
 authors = ["Lorenzo Carbonell (a.k.a. atareao) <lorenzo.carbonell.cerezo@gmail.com>"]
+license = "MIT"
+description = "A CLI podcast manager and player written in Rust"
+repository = "https://github.com/atareao/podcli-rs"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
