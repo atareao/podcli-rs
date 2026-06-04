@@ -4,21 +4,17 @@ use crate::podcast::Podcast;
 use std::{env, process, str::FromStr};
 
 use crate::podcast::get_rss;
+use clap::{ArgAction, Args, Parser, Subcommand};
 use colored::*;
 use inquire::Select;
 use itertools::Itertools;
 use regex::Regex;
-use rodio::{Decoder, OutputStream, Sink, OutputStreamBuilder};
+use rodio::{Decoder, OutputStream, OutputStreamBuilder, Sink};
 use spinners::{Spinner, Spinners};
-use tracing_subscriber::{
-    layer::SubscriberExt,
-    util::SubscriberInitExt,
-    EnvFilter
-};
-use tracing::{debug, error, info};
 use std::fs::File;
 use std::io::BufReader;
-use clap::{Parser, Args, Subcommand, ArgAction};
+use tracing::{debug, error, info};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 const DESCRIPTION: &str = env!("CARGO_PKG_DESCRIPTION");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -44,7 +40,7 @@ enum Commands {
 }
 
 #[derive(Args)]
-struct ListArgs{
+struct ListArgs {
     #[arg(short, long)]
     url: String,
 
@@ -56,11 +52,10 @@ struct ListArgs{
 
     #[arg(short, long)]
     json: Option<bool>,
-
 }
 
 #[derive(Args)]
-struct InteractiveArgs{
+struct InteractiveArgs {
     #[arg(short, long)]
     url: String,
 }
@@ -77,7 +72,7 @@ async fn main() {
     debug!("log_level: {}", log_level);
 
     let cli = Cli::parse();
-    match &cli.command{
+    match &cli.command {
         Commands::List(args) => {
             let url = &args.url;
             let mut spinner = Spinner::new(Spinners::Dots9, "Downloading feed".to_string());
@@ -93,14 +88,13 @@ async fn main() {
                 );
                 items.get(id).unwrap().print();
             }
-        },
-        Commands::Interactive(args) =>{
+        }
+        Commands::Interactive(args) => {
             let url = &args.url;
             let mut podcast = get_podcast(url).await;
             loop {
                 interactive(&mut podcast, url).await;
             }
-
         }
     }
     process::exit(0);
@@ -116,7 +110,7 @@ fn play(filename: &str) {
     sink.sleep_until_end();
 }
 
-async fn get_podcast(url: &str) -> Podcast{
+async fn get_podcast(url: &str) -> Podcast {
     info!("get_podcast: {}", url);
     let mut spinner = Spinner::new(Spinners::Dots9, "Downloading feed".to_string());
     let podcast = get_rss(url).await.unwrap();
@@ -177,10 +171,10 @@ async fn interactive(podcast: &mut Podcast, url: &str) {
                             Spinner::new(Spinners::Dots9, "Downloading episode".to_string());
                         let filename = format!("/tmp/{}.mp3", id);
                         println!("{:?}", &filename);
-                        match episode.download(&filename).await{
+                        match episode.download(&filename).await {
                             Ok(result) => {
                                 debug!("Downloaded: {}", result);
-                            },
+                            }
                             Err(e) => error!("Can not download by: {}", e),
                         }
                         play(&filename);
