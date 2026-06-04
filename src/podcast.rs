@@ -6,6 +6,7 @@ use roxmltree::Document;
 use std::{collections::HashMap, fmt, fs::File, io::Cursor};
 use termimad::{self, MadSkin};
 
+#[allow(dead_code)]
 pub struct Episode {
     id: usize,
     title: String,
@@ -21,6 +22,7 @@ impl fmt::Display for Episode {
     }
 }
 
+#[allow(dead_code)]
 pub struct Podcast {
     url: String,
     title: String,
@@ -222,9 +224,9 @@ impl Episode {
     pub async fn download(&self, filename: &str) -> Result<bool, Error> {
         let response = reqwest::get(&self.enclosure).await?;
         let mut content = Cursor::new(response.bytes().await?);
-        let mut file = File::create(&filename).unwrap();
+        let mut file = File::create(filename).unwrap();
         std::io::copy(&mut content, &mut file).unwrap();
-        file.sync_all();
+        let _ = file.sync_all();
         Ok(true)
     }
 }
