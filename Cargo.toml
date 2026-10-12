@@ -11,22 +11,24 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-termimad = "0.34"
+termimad = "0.35"
 html2md = "0.2"
-itertools = "0.14"
-regex = "1.12"
+itertools = "0.15"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+regex = "1.13"
 inquire = "0.9"
-clap = {version = "4.5", features = ["derive"]}
-tokio = { version = "1.49", features = ["full"]}
+clap = {version = "4.6", features = ["derive"]}
+tokio = { version = "1.53", features = ["full"]}
 reqwest = "0.13"
 roxmltree = "0.21"
-spinners = "4.1"
+spinners = "4.2"
 colored = "3"
 # the player
 #gstreamer = "0.17.4"
-rodio = "0.21"
+rodio = "0.23"
 tracing = "0.1.44"
-tracing-subscriber = { version = "0.3.22", features = ["local-time", "env-filter"] }
+tracing-subscriber = { version = "0.3.23", features = ["local-time", "env-filter"] }
 # glib-sys = "0.15"
 
 [[bin]]

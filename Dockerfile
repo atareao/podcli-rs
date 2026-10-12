@@ -44,12 +44,16 @@ FROM alpine
 
 RUN apk add tini libressl-dev
 
+# Create an unprivileged user.
+RUN adduser -D -H -s /sbin/nologin dockeruser
+
 WORKDIR /app
 
 # Copy our build
-COPY --from=builder /app/podcli ./
+COPY --from=builder --chown=dockeruser:dockeruser /app/podcli ./
 
 # Use an unprivileged user.
 USER dockeruser
 
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/app/podcli"]
