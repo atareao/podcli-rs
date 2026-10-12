@@ -1,4 +1,9 @@
 # Changelog
+## [0.6.1] - 2026-10-12
+
+### 🐛 Bug Fixes
+
+- (deps) Patch rustls and quinn-proto security advisories
 ## [0.6.0] - 2026-10-12
 
 ### ✨ Features
@@ -13,6 +18,10 @@
 ### 📝 Documentation
 
 - Add project AGENTS.md and OpenSpec specs
+
+### 🔧 Miscellaneous Tasks
+
+- Release v0.6.0
 ## [0.5.0] - 2026-06-04
 
 ### ✨ Features
