@@ -3,10 +3,13 @@ use html2md::parse_html;
 use itertools::Itertools;
 use reqwest::Error;
 use roxmltree::Document;
+use serde::Serialize;
 use std::{collections::HashMap, fmt, fs::File, io::Cursor};
 use termimad::{self, MadSkin};
+use tracing::debug;
 
 #[allow(dead_code)]
+#[derive(Serialize)]
 pub struct Episode {
     id: usize,
     title: String,
@@ -179,7 +182,7 @@ pub async fn get_rss(url: &str) -> Result<Podcast, Error> {
         } else {
             duration = "";
         }
-        println!("{} - {}", id, title);
+        debug!("{} - {}", id, title);
         let episode = Episode::new(id, title, &description, enclosure, link, image, duration);
         episodes.insert(id, episode);
     }
