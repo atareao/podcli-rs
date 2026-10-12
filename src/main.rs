@@ -9,9 +9,10 @@ use colored::*;
 use inquire::Select;
 use itertools::Itertools;
 use regex::Regex;
-use rodio::{Decoder, OutputStreamBuilder, Sink};
+use rodio::{Decoder, DeviceSinkBuilder, Player};
 use spinners::{Spinner, Spinners};
 use std::fs::File;
+use std::io;
 use std::io::BufReader;
 use tracing::{debug, error, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
@@ -73,7 +74,7 @@ async fn main() {
 
     tracing_subscriber::registry()
         .with(EnvFilter::from_str(&log_level).unwrap())
-        .with(tracing_subscriber::fmt::layer())
+        .with(tracing_subscriber::fmt::layer().with_writer(io::stderr))
         .init();
 
     debug!("log_level: {}", log_level);
@@ -111,13 +112,14 @@ async fn main() {
 
 fn play(filename: &str, speed: f32) {
     debug!("play: {}", filename);
-    let stream_handle = OutputStreamBuilder::open_default_stream().unwrap();
+    let mut device_sink = DeviceSinkBuilder::open_default_sink().unwrap();
+    device_sink.log_on_drop(false);
     let file = BufReader::new(File::open(filename).unwrap());
-    let sink = Sink::connect_new(stream_handle.mixer());
-    sink.set_speed(speed);
+    let player = Player::connect_new(device_sink.mixer());
+    player.set_speed(speed);
     let source = Decoder::new(file).unwrap();
-    sink.append(source);
-    sink.sleep_until_end();
+    player.append(source);
+    player.sleep_until_end();
 }
 
 async fn get_podcast(url: &str) -> Podcast {
