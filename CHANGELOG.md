@@ -1,9 +1,27 @@
 # Changelog
+## [0.6.0] - 2026-10-12
+
+### ✨ Features
+
+- Implement list --first/--last filtering and --json output
+
+### 🐛 Bug Fixes
+
+- (cli) Make --download-dir/--speed global and fix list help
+- (docker) Create unprivileged dockeruser and use tini
+
+### 📝 Documentation
+
+- Add project AGENTS.md and OpenSpec specs
 ## [0.5.0] - 2026-06-04
 
 ### ✨ Features
 
 - Add emojis to changelog groups
+
+### 🔧 Miscellaneous Tasks
+
+- Release v0.5.0
 ## [0.4.0] - 2026-06-04
 
 ### ✨ Features
