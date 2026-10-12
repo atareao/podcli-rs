@@ -28,11 +28,11 @@ struct Cli {
     /// debug podcli
     debug: bool,
 
-    #[arg(short, long, value_name = "DIR")]
+    #[arg(long, global = true, value_name = "DIR")]
     /// Directory to store downloaded episodes
     download_dir: Option<String>,
 
-    #[arg(long, value_name = "SPEED", default_value_t = 1.0)]
+    #[arg(long, global = true, value_name = "SPEED", default_value_t = 1.0)]
     /// Playback speed (1.0 = normal, 0.5 = half, 2.0 = double)
     speed: f32,
 
@@ -42,7 +42,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Adds files to myapp
+    /// List episodes from an RSS feed
     List(ListArgs),
     /// Run interactive mode
     Interactive(InteractiveArgs),
