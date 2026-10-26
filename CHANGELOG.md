@@ -4,6 +4,10 @@
 ### 🐛 Bug Fixes
 
 - (deps) Patch rustls and quinn-proto security advisories
+
+### 🔧 Miscellaneous Tasks
+
+- Release v0.6.1
 ## [0.6.0] - 2026-10-12
 
 ### ✨ Features
